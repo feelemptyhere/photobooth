@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Editorial palette per PRD §4 */
+  --paper: #fafaf7;
+  --ink: #0a0a0a;
+  --pink: #ffd9e6;
+  --blue: #c8e1ff;
+  --muted: #8a8a8a;
+  --line: #e5e5e0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-instrument-sans), system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 300;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Editorial uppercase heading utility — PRD §4 */
+.editorial {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-weight: 300;
+}
+
+.editorial-wide {
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-weight: 300;
+}
+
+/* Thumbnail circular control — PRD §4 */
+.thumb-circle {
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+/* Thin line separator */
+.hairline {
+  border-color: var(--line);
+}
+
+/* Hide scrollbar but keep functionality for carousels */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Subtle dot grid background placeholder */
+.dot-grid {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(10, 10, 10, 0.04) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+}

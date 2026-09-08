@@ -1,0 +1,10 @@
+# Skip the all-in-one combined spec — it duplicates every individual doc
+# in /docs/, so indexing it wastes tokens and produces duplicate nodes.
+# The 10 individual docs (01-11) already cover all content.
+docs/00-ALL-IN-ONE.md
+
+# Also skip lockfiles / generated artifacts
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+graphify-out/
