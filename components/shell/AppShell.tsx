@@ -16,13 +16,34 @@ import { ScreenTransition } from "./ScreenTransition";
 import { SetupScreen } from "@/components/setup/SetupScreen";
 import { StripLayoutSelector } from "@/components/strip/StripLayoutSelector";
 import { PackSelector } from "@/components/pack/PackSelector";
+import { CameraStage } from "@/components/camera/CameraStage";
 import { NotImplemented } from "@/components/ui/NotImplemented";
 
 const SCREENS: Partial<Record<SessionStatus, () => React.ReactNode>> = {
   setup: SetupScreen,
   strip_selection: StripLayoutSelector,
   pack_selection: PackSelector,
+  // The three camera sub-statuses are all rendered by <CameraStage />.
+  camera_permission: CameraStage,
+  countdown: CameraStage,
+  capture: CameraStage,
 };
+
+/**
+ * Collapse the three camera sub-statuses into one screen key so the live
+ * <video> + MediaStream stay mounted across the whole capture loop (remounting
+ * would tear the stream down mid-countdown).
+ */
+function screenKeyFor(status: SessionStatus): string {
+  if (
+    status === "camera_permission" ||
+    status === "countdown" ||
+    status === "capture"
+  ) {
+    return "camera";
+  }
+  return status;
+}
 
 export default function AppShell() {
   const status = usePhotoBoothStore((s) => s.status);
@@ -30,7 +51,7 @@ export default function AppShell() {
 
   return (
     <main className="min-h-[100dvh] w-full bg-paper dot-grid">
-      <ScreenTransition screenKey={status}>
+      <ScreenTransition screenKey={screenKeyFor(status)}>
         {Screen ? <Screen /> : <NotImplemented status={status} />}
       </ScreenTransition>
     </main>
