@@ -44,6 +44,44 @@ Kalau butuh satu file spec gabungan untuk context window terbatas, gunakan `docs
 10. Jika ada ambiguitas spesifikasi yang tidak terjawab di dokumen manapun, **buat keputusan implementasi sendiri yang masuk akal** dan dokumentasikan singkat di komentar kode. Jangan berhenti untuk bertanya kecuali benar-benar blocking (mis. kredensial, akses eksternal).
 11. **Laporkan status setiap selesai satu fase** dan tunggu konfirmasi sebelum lanjut ke fase berikutnya, kecuali diinstruksikan sebaliknya oleh user.
 
+## Efisiensi Token (WAJIB — hemat token)
+
+Token adalah resource terbatas. Dua mekanisme wajib dipakai sepanjang sesi untuk memangkas konsumsi token. **Pelanggaran aturan di bawah = pemborosan token yang tidak perlu dan wajib dihindari.**
+
+### 1. Graphify — SATU-SATUNYA cara eksplorasi/pencarian kode
+
+Knowledge graph proyek sudah dibangun di `graphify-out/graph.json` (code AST + 11 dokumen `docs/`). Setelah selesai satu fase atau commit besar, jalankan **`graphify update .`** (gratis, **no LLM**) supaya graph sinkron dengan kode terbaru — lakukan ini sebelum mulai eksplorasi di sesi baru.
+
+**DILARANG KERAS** melakukan pencarian/eksplorasi kode dengan cara lain:
+- ❌ `grep`, `rg`, `find`, `sed` manual di shell untuk mencari simbol/definisi/pemakaian
+- ❌ `read_files` / membuka file mentah sekadar "untuk lihat apa isinya" atau mencari di mana suatu fungsi/komponen didefinisikan
+- ❌ `search_codebase` (regex search) untuk mencari simbol/fungsi/komponen/definisi
+- ❌ `fetch_web_content` untuk dokumentasi internal yang sudah ada di graph (seluruh `docs/*` sudah ter-indeks)
+
+**WAJIB** lewat graphify untuk SEMUA kebutuhan berikut:
+- Cari simbol / fungsi / komponen / tipe / definisi → `graphify query "<term>"`
+- Pahami sebuah node + tetangga/dependency-nya → `graphify explain "<symbol>"`
+- Trace hubungan / rantai dependency antar 2 simbol → `graphify path "A" "B"`
+- Setelah fase/commit besar selesai → `graphify update .` (refresh graph, gratis)
+
+**Pengecualian (boleh `read_files` langsung, bukan search):**
+- Membaca file spesifik yang path-nya **sudah pasti diketahui** untuk diedit (mis. file yang sedang diimplementasi).
+- Membaca `docs/*` saat onboarding awal sesuai urutan di tabel Dokumentasi (itu baca-membaca, bukan pencarian).
+- Membaca `AGENTS.md` itu sendiri.
+
+### 2. rtk — wajib dipakai untuk kompresi output shell
+
+[**rtk**](https://github.com/rtk-ai/rtk) adalah CLI proxy (binary Rust tunggal, zero-dependency) yang memfilter & mengompresi output command shell **sebelum** masuk ke context LLM — memangkas konsumsi token **60–90%** pada command umum (`git`, `npm`, `cargo`, `tsc`, build/test output, dll; 100+ filter built-in).
+
+**WAJIB:**
+- rtk ter-install di environment kerja. Setup awal: `rtk init` (ikuti prompt, pilih agent hook yang sesuai). Cek status: `rtk status` / `rtk gain`.
+- Semua command shell beroutput panjang (build, test, `git log`, `tsc --noEmit`, `npm run build`, dst.) **wajib** dijalankan dengan outputnya lewat proxy rtk agar ter-kompres sebelum sampai ke context.
+- Pantau hemat token: `rtk gain` (estimasi token & USD tersimpan).
+
+> Kedua aturan saling melengkapi: **graphify untuk eksplorasi/pencarian kode, rtk untuk kompresi output shell.** Tujuan sama: **hemat token, jangan boros.**
+
+---
+
 ## Struktur Folder Proyek
 
 ```
