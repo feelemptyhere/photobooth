@@ -17,6 +17,7 @@ import { SetupScreen } from "@/components/setup/SetupScreen";
 import { StripLayoutSelector } from "@/components/strip/StripLayoutSelector";
 import { PackSelector } from "@/components/pack/PackSelector";
 import { CameraStage } from "@/components/camera/CameraStage";
+import { PhotoEditor } from "@/components/review/PhotoEditor";
 import { NotImplemented } from "@/components/ui/NotImplemented";
 
 const SCREENS: Partial<Record<SessionStatus, () => React.ReactNode>> = {
@@ -27,6 +28,10 @@ const SCREENS: Partial<Record<SessionStatus, () => React.ReactNode>> = {
   camera_permission: CameraStage,
   countdown: CameraStage,
   capture: CameraStage,
+  // Screen 05 — per-photo filter/background/effect editing (status lands here
+  // after the 6th capture, or after a single retake shot).
+  photo_review: PhotoEditor,
+  editing: PhotoEditor,
 };
 
 /**

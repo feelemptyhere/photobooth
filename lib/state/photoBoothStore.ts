@@ -37,6 +37,10 @@ const warn = (m: string) => {
 export interface PhotoBoothStore {
   session: PhotoBoothSession;
   status: SessionStatus;
+  /** Transient retake flag (orchestration only, NOT part of the session data
+   *  model). When non-null, capturePhoto() does a single shot and returns to
+   *  PHOTO_REVIEW instead of continuing the 6-shot loop (docs/08 §6). */
+  retakeSlotIndex: number | null;
   setName: (name: string) => void;
   setThemeColor: (color: ThemeColor) => void;
   goToStripSelection: () => void;
@@ -70,6 +74,7 @@ export const usePhotoBoothStore = create<PhotoBoothStore>((set, get) => {
   return {
     session: createEmptySession(),
     status: "setup",
+    retakeSlotIndex: null,
     setName: (name) => set((s) => ({ session: { ...s.session, name } })),
     setThemeColor: (themeColor) => set((s) => ({ session: { ...s.session, themeColor } })),
     // Exit SETUP: name.trim() && themeColor !== null
@@ -89,7 +94,7 @@ export const usePhotoBoothStore = create<PhotoBoothStore>((set, get) => {
     setPack: (packId) => set((s) => ({ session: { ...s.session, packId } })),
     goToCamera: () => {
       if (get().session.packId === null) { warn("PACK_SELECTION exit requires packId"); return; }
-      transition("camera_permission", { currentPhotoIndex: 0, photos: [] });
+      set((s) => ({ retakeSlotIndex: null, status: "camera_permission", session: { ...s.session, currentPhotoIndex: 0, photos: [], status: "camera_permission" } }));
     },
     startCountdown: () => {
       const st = get().status;
@@ -97,15 +102,28 @@ export const usePhotoBoothStore = create<PhotoBoothStore>((set, get) => {
       transition("countdown");
     },
     capturePhoto: (dataUrl) => {
-      const { session } = get();
+      const { session, retakeSlotIndex } = get();
       const idx = session.currentPhotoIndex;
+      const isRetake = retakeSlotIndex !== null;
       const photo: CapturedPhoto = {
-        id: `${Date.now()}-${idx}`, slotIndex: idx, imageDataUrl: dataUrl,
-        backgroundId: null, filterId: "original", effectId: null, retaken: false,
+        id: `${Date.now()}-${idx}`,
+        slotIndex: idx,
+        imageDataUrl: dataUrl,
+        backgroundId: null,
+        filterId: "original",
+        effectId: null,
+        retaken: isRetake,
       };
       const photos = [...session.photos];
       photos[idx] = photo;
-      if (idx < SESSION_MAX_PHOTOS - 1) {
+      if (isRetake) {
+        // Single retake shot — return to PHOTO_REVIEW, do not advance the loop.
+        set((s) => ({
+          status: "photo_review",
+          retakeSlotIndex: null,
+          session: { ...s.session, photos, currentPhotoIndex: 0, status: "photo_review" },
+        }));
+      } else if (idx < SESSION_MAX_PHOTOS - 1) {
         set((s) => ({ status: "countdown", session: { ...s.session, photos, currentPhotoIndex: idx + 1, status: "countdown" } }));
       } else {
         set((s) => ({ status: "photo_review", session: { ...s.session, photos, currentPhotoIndex: 0, status: "photo_review" } }));
@@ -113,7 +131,11 @@ export const usePhotoBoothStore = create<PhotoBoothStore>((set, get) => {
     },
     retakePhoto: (slotIndex) => {
       if (slotIndex < 0 || slotIndex >= SESSION_MAX_PHOTOS) { warn(`invalid slotIndex ${slotIndex}`); return; }
-      transition("camera_permission", { currentPhotoIndex: slotIndex });
+      set((s) => ({
+        retakeSlotIndex: slotIndex,
+        status: "camera_permission",
+        session: { ...s.session, currentPhotoIndex: slotIndex, status: "camera_permission" },
+      }));
     },
     goToEditing: () => transition("editing"),
     updatePhotoEdit: (slotIndex, patch) =>
@@ -131,7 +153,7 @@ export const usePhotoBoothStore = create<PhotoBoothStore>((set, get) => {
     addDrawingStroke: (stroke) => set((s) => ({ session: { ...s.session, drawings: [...s.session.drawings, stroke] } })),
     clearDrawings: () => set((s) => ({ session: { ...s.session, drawings: [] } })),
     finalizeStrip: (dataUrl) => transition("final_result", { finalImageDataUrl: dataUrl }),
-    resetSession: () => set({ session: createEmptySession(), status: "setup" }),
+    resetSession: () => set({ session: createEmptySession(), status: "setup", retakeSlotIndex: null }),
     goBack: (to) => transition(to),
   };
 });

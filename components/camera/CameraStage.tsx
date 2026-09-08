@@ -5,6 +5,12 @@ import { useCamera } from "@/lib/camera/useCamera";
 import { useCountdown } from "@/lib/camera/useCountdown";
 import { captureFrame } from "@/lib/camera/captureFrame";
 import { usePhotoBoothStore } from "@/lib/state/photoBoothStore";
+import { filters, getFilterCss } from "@/lib/assets/filters";
+import { backgrounds, getBackground } from "@/lib/assets/backgrounds";
+import { effects, getEffect } from "@/lib/assets/effects";
+import { FilterCarousel } from "@/components/effects/FilterCarousel";
+import { BackgroundCarousel } from "@/components/effects/BackgroundCarousel";
+import { EffectCarousel } from "@/components/effects/EffectCarousel";
 import { CameraCounter } from "./CameraCounter";
 import { Countdown } from "./Countdown";
 import { CaptureFlash } from "./CaptureFlash";
@@ -29,7 +35,19 @@ export function CameraStage() {
   );
   const startCountdown = usePhotoBoothStore((s) => s.startCountdown);
   const capturePhoto = usePhotoBoothStore((s) => s.capturePhoto);
+  const retakeSlotIndex = usePhotoBoothStore((s) => s.retakeSlotIndex);
   const [flash, setFlash] = useState(false);
+
+  // Live-preview selections (camera carousels are preview-only — the actual
+  // per-photo filter/background/effect is chosen in <PhotoEditor /> (Screen 05).
+  const [previewFilterId, setPreviewFilterId] = useState("original");
+  const [previewBgId, setPreviewBgId] = useState("none");
+  const [previewEffectId, setPreviewEffectId] = useState<string | null>(null);
+
+  const previewFilterCss = getFilterCss(previewFilterId);
+  const previewBgValue =
+    getBackground(previewBgId)?.value ?? "transparent";
+  const previewEffect = getEffect(previewEffectId);
 
   const handleCountdownComplete = useCallback(() => {
     if (!videoRef.current) return;
@@ -70,9 +88,13 @@ export function CameraStage() {
   }, [stopStream]);
 
   const showCountdown = status === "countdown" && count !== null;
+  const isRetake = retakeSlotIndex !== null;
 
   return (
-    <section className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-1 flex-col items-center justify-center px-6 py-10">
+    <section
+      className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-1 flex-col items-center justify-center px-6 py-10"
+      style={{ backgroundColor: ready ? previewBgValue : undefined }}
+    >
       {error ? (
         <CameraErrorState errorType={error} onRetry={requestPermission} />
       ) : (
@@ -83,8 +105,25 @@ export function CameraStage() {
             muted
             playsInline
             className="h-full w-full object-cover"
-            style={{ transform: "scaleX(-1)" }} // mirror preview to match captured frame
+            style={{ transform: "scaleX(-1)", filter: previewFilterCss }}
           />
+
+          {/* Effect overlay (live preview) */}
+          {ready && previewEffect && (
+            <img
+              src={previewEffect.overlayImageUrl}
+              alt={previewEffect.name}
+              className="pointer-events-none absolute left-1/2 w-[70%] -translate-x-1/2"
+              style={{
+                top:
+                  previewEffect.anchor === "face-top"
+                    ? "2%"
+                    : previewEffect.anchor === "face-center"
+                      ? "28%"
+                      : "0",
+              }}
+            />
+          )}
 
           {/* Dim overlay while the stream is still starting up */}
           {!ready && !error && (
@@ -95,9 +134,37 @@ export function CameraStage() {
             </div>
           )}
 
-          {ready && <CameraCounter index={currentPhotoIndex} total={6} />}
+          {ready &&
+            (isRetake ? (
+              <span className="absolute left-0 top-0 p-4 editorial-wide text-[10px] text-paper/90 drop-shadow">
+                retake photo {retakeSlotIndex! + 1}
+              </span>
+            ) : (
+              <CameraCounter index={currentPhotoIndex} total={6} />
+            ))}
           {showCountdown && <Countdown count={count} />}
           <CaptureFlash active={flash} />
+        </div>
+      )}
+
+      {/* Live-preview carousels (Screen 04 overlay controls) */}
+      {!error && ready && (
+        <div className="mt-6 flex w-full max-w-md flex-col gap-5">
+          <FilterCarousel
+            options={filters}
+            selectedId={previewFilterId}
+            onSelect={setPreviewFilterId}
+          />
+          <BackgroundCarousel
+            options={backgrounds}
+            selectedId={previewBgId}
+            onSelect={setPreviewBgId}
+          />
+          <EffectCarousel
+            options={effects}
+            selectedId={previewEffectId}
+            onSelect={(id) => setPreviewEffectId(id === previewEffectId ? null : id)}
+          />
         </div>
       )}
 

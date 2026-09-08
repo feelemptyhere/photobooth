@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="180" viewBox="0 0 200 180">
+  <path d="M100 160 C30 100 30 40 65 40 C86 40 100 64 100 64 C100 64 114 40 135 40 C170 40 170 100 100 160 Z" fill="#E8556E"/>
+  <path d="M40 40 q-12 -14 -24 0 q-12 14 0 24 q12 -10 24 -10 q12 0 24 10 q12 -10 0 -24 q-12 -14 -24 0" fill="#FF8FA3" transform="scale(0.5) translate(20,30)"/>
+  <path d="M70 0 q-10 -12 -20 0 q-10 12 0 20 q10 -8 20 -8 q10 0 20 8 q10 -8 0 -20 q-10 -12 -20 0" fill="#FF8FA3" transform="translate(120,30) scale(0.55)"/>
+</svg>
