@@ -34,12 +34,12 @@ export const stripPacks: StripPack[] = [
     width: BASE_W,
     height: BASE_H,
     background: "#F7F1E8",
-    textureUrl: "/assets/textures/bistro-texture.png",
+    textureUrl: "/assets/textures/bistro-texture.svg",
     photoSlots: verticalSlots(),
     decorativeElements: [
       {
         id: "bistro-corner-tl",
-        imageUrl: "/assets/textures/bistro-corner.png",
+        imageUrl: "/assets/textures/bistro-corner.svg",
         x: 0,
         y: 0,
         width: 60,
@@ -61,7 +61,7 @@ export const stripPacks: StripPack[] = [
     decorativeElements: [
       {
         id: "sweetheart-heart-1",
-        imageUrl: "/assets/textures/heart-sticker.png",
+        imageUrl: "/assets/textures/heart-sticker.svg",
         x: 220,
         y: 10,
         width: 40,
@@ -92,6 +92,19 @@ export const stripPacks: StripPack[] = [
     photoSlots: verticalSlots(),
     decorativeElements: [],
     typography: { fontFamily: "var(--font-instrument-sans)", footerColor: "#EDE6D6" },
+    footer: { showDate: true, brandText: "yourbrand.com" },
+  },
+  {
+    // 5th pack — added in Fase 4 to prove the data-driven contract: it
+    // appeared in <PackSelector /> with zero component changes.
+    id: "sunbeam",
+    name: "Sunbeam",
+    width: BASE_W,
+    height: BASE_H,
+    background: "#FCE9B8",
+    photoSlots: verticalSlots(),
+    decorativeElements: [],
+    typography: { fontFamily: "var(--font-instrument-sans)", footerColor: "#7A5A1F" },
     footer: { showDate: true, brandText: "yourbrand.com" },
   },
 ];
