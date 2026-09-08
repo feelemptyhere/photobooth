@@ -4,7 +4,7 @@ import "./globals.css";
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-instrument-sans",
   display: "swap",
 });
@@ -14,7 +14,13 @@ export const metadata: Metadata = {
   description:
     "Online photobooth — capture, edit, compose, share. A visual editorial experience.",
   applicationName: "Photobooth",
-  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
+};
+
+// Next 14: viewport + themeColor must live in a `viewport` export.
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
   themeColor: "#fafaf7",
 };
 
