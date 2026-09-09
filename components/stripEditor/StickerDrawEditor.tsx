@@ -4,7 +4,6 @@ import { useState } from "react";
 import { usePhotoBoothStore } from "@/lib/state/photoBoothStore";
 import { stripPacks, getPack } from "@/lib/templates/stripPacks";
 import { stickerAssets } from "@/lib/assets/stickers";
-import { exportStrip } from "@/lib/utils/exportStrip";
 import { Heading } from "@/components/ui/Heading";
 import { ScreenFooter } from "@/components/ui/ScreenFooter";
 import { StripCanvasPreview } from "@/components/strip/StripCanvasPreview";
@@ -30,10 +29,7 @@ type Mode = "stickers" | "draw";
  */
 export function StickerDrawEditor() {
   const packId = usePhotoBoothStore((s) => s.session.packId);
-  const photos = usePhotoBoothStore((s) => s.session.photos);
   const stickers = usePhotoBoothStore((s) => s.session.stickers);
-  const drawings = usePhotoBoothStore((s) => s.session.drawings);
-  const userName = usePhotoBoothStore((s) => s.session.name);
 
   const addSticker = usePhotoBoothStore((s) => s.addSticker);
   const updateSticker = usePhotoBoothStore((s) => s.updateSticker);
@@ -41,7 +37,7 @@ export function StickerDrawEditor() {
   const addDrawingStroke = usePhotoBoothStore((s) => s.addDrawingStroke);
   const clearDrawings = usePhotoBoothStore((s) => s.clearDrawings);
   const undoDrawing = usePhotoBoothStore((s) => s.undoDrawing);
-  const finalizeStrip = usePhotoBoothStore((s) => s.finalizeStrip);
+  const goToFinalResult = usePhotoBoothStore((s) => s.goToFinalResult);
   const goBack = usePhotoBoothStore((s) => s.goBack);
 
   const pack = packId ? getPack(packId) ?? stripPacks[0] : stripPacks[0];
@@ -50,7 +46,6 @@ export function StickerDrawEditor() {
   const [drawActive, setDrawActive] = useState(false);
   const [drawColor, setDrawColor] = useState("#1A1A1A");
   const [drawThickness, setDrawThickness] = useState(5);
-  const [exporting, setExporting] = useState(false);
 
   const handleAddSticker = (assetId: string) => {
     addSticker({
@@ -62,25 +57,6 @@ export function StickerDrawEditor() {
       scale: 1,
       rotation: 0,
     });
-  };
-
-  const handleDone = async () => {
-    if (exporting) return;
-    setExporting(true);
-    try {
-      const dataUrl = await exportStrip({
-        pack,
-        photos,
-        stickers,
-        drawings,
-        userName,
-      });
-      finalizeStrip(dataUrl);
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error("[exportStrip] failed", err);
-      setExporting(false);
-    }
   };
 
   return (
@@ -155,9 +131,8 @@ export function StickerDrawEditor() {
 
       <ScreenFooter
         onBack={() => goBack("strip_composition")}
-        onNext={handleDone}
-        nextLabel={exporting ? "rendering…" : "done ▷"}
-        nextDisabled={exporting}
+        onNext={goToFinalResult}
+        nextLabel="done ▷"
       />
     </section>
   );

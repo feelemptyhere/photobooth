@@ -62,6 +62,7 @@ export interface PhotoBoothStore {
   clearDrawings: () => void;
   undoDrawing: () => void;
   finalizeStrip: (dataUrl: string) => void;
+  goToFinalResult: () => void;
   resetSession: () => void;
   // Additive convenience for linear back-navigation (setup↔strip↔pack).
   // No re-validation — back is always user-driven and safe.
@@ -155,6 +156,7 @@ export const usePhotoBoothStore = create<PhotoBoothStore>((set, get) => {
     clearDrawings: () => set((s) => ({ session: { ...s.session, drawings: [] } })),
     undoDrawing: () => set((s) => ({ session: { ...s.session, drawings: s.session.drawings.slice(0, -1) } })),
     finalizeStrip: (dataUrl) => transition("final_result", { finalImageDataUrl: dataUrl }),
+    goToFinalResult: () => transition("final_result"),
     resetSession: () => set({ session: createEmptySession(), status: "setup", retakeSlotIndex: null }),
     goBack: (to) => transition(to),
   };
