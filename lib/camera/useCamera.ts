@@ -33,6 +33,11 @@ export function useCamera() {
   const requestPermission = useCallback(async () => {
     setError(null);
     setReady(false);
+    // Tear down any stream left over from a previous request (retry after an
+    // error, or a re-entry) before opening a new one — otherwise the old
+    // MediaStream tracks keep running and are never stopped until unmount
+    // (Fase 10 memory-leak audit, checklist docs/08 §7).
+    stopStream();
 
     if (!navigator.mediaDevices?.getUserMedia) {
       setError("not_supported");
@@ -60,7 +65,9 @@ export function useCamera() {
         setError("stream_failure");
       }
     }
-  }, []);
+    // stopStream is stable (useCallback []), so this never re-creates the
+    // callback — listing it only satisfies exhaustive-deps now that we call it.
+  }, [stopStream]);
 
   // Cleanup on unmount — mandatory (checklist §7).
   useEffect(() => {
