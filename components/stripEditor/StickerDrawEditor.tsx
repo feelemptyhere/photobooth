@@ -60,7 +60,7 @@ export function StickerDrawEditor() {
   };
 
   return (
-    <section className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-1 flex-col items-center px-6 py-10">
+    <section className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-1 flex-col items-center px-6 py-8 lg:py-10">
       <p className="editorial-wide mb-3 text-[10px] text-[var(--muted)]">
         step 08 — stickers &amp; draw
       </p>
@@ -94,39 +94,42 @@ export function StickerDrawEditor() {
         </button>
       </div>
 
-      {/* Preview + overlays. inline-block wrapper shrinks to the canvas display
-          size; overlays are absolute inset-0 over that exact box (1:4 aspect). */}
-      <div className="relative inline-block">
-        <StripCanvasPreview className="block max-h-[58dvh] max-w-[240px] rounded-lg shadow-sm" />
-        <StickerLayer
-          placedStickers={stickers}
-          onUpdate={updateSticker}
-          onRemove={removeSticker}
-        />
-        <DrawingCanvas
-          active={mode === "draw" && drawActive}
-          color={drawColor}
-          thickness={drawThickness}
-          onStrokeComplete={addDrawingStroke}
-        />
-      </div>
-
-      {/* Tool panel */}
-      <div className="mt-6 w-full max-w-[360px]">
-        {mode === "stickers" ? (
-          <StickerPicker stickers={stickerAssets} onAdd={handleAddSticker} />
-        ) : (
-          <DrawToolbar
-            active={drawActive}
+      {/* Preview + overlays side-by-side with the tool panel on desktop (lg),
+          stacked vertically on mobile (docs/09 Fase 9 — strip editor 2-col →
+          stack). The inline-block wrapper shrinks to the canvas display size;
+          overlays are absolute inset-0 over that exact box (1:4 aspect). */}
+      <div className="flex w-full flex-1 flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center lg:gap-12">
+        <div className="relative inline-block">
+          <StripCanvasPreview className="block max-h-[58dvh] max-w-[240px] rounded-lg shadow-sm" />
+          <StickerLayer
+            placedStickers={stickers}
+            onUpdate={updateSticker}
+            onRemove={removeSticker}
+          />
+          <DrawingCanvas
+            active={mode === "draw" && drawActive}
             color={drawColor}
             thickness={drawThickness}
-            onToggleActive={() => setDrawActive((v) => !v)}
-            onColorChange={setDrawColor}
-            onThicknessChange={setDrawThickness}
-            onErase={undoDrawing}
-            onClearAll={clearDrawings}
+            onStrokeComplete={addDrawingStroke}
           />
-        )}
+        </div>
+
+        <div className="w-full max-w-[360px]">
+          {mode === "stickers" ? (
+            <StickerPicker stickers={stickerAssets} onAdd={handleAddSticker} />
+          ) : (
+            <DrawToolbar
+              active={drawActive}
+              color={drawColor}
+              thickness={drawThickness}
+              onToggleActive={() => setDrawActive((v) => !v)}
+              onColorChange={setDrawColor}
+              onThicknessChange={setDrawThickness}
+              onErase={undoDrawing}
+              onClearAll={clearDrawings}
+            />
+          )}
+        </div>
       </div>
 
       <ScreenFooter

@@ -92,7 +92,7 @@ export function CameraStage() {
 
   return (
     <section
-      className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-1 flex-col items-center justify-center px-6 py-10"
+      className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-1 flex-col items-center justify-center px-6 py-6 lg:py-10"
       style={{ backgroundColor: ready ? previewBgValue : undefined }}
     >
       {error ? (
@@ -149,7 +149,7 @@ export function CameraStage() {
 
       {/* Live-preview carousels (Screen 04 overlay controls) */}
       {!error && ready && (
-        <div className="mt-6 flex w-full max-w-md flex-col gap-5">
+        <div className="mt-5 flex w-full max-w-md flex-col gap-4 lg:mt-6 lg:gap-5">
           <FilterCarousel
             options={filters}
             selectedId={previewFilterId}

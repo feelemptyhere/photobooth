@@ -30,7 +30,7 @@ export function CircleThumbButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex shrink-0 cursor-pointer flex-col items-center gap-1.5"
+      className="flex shrink-0 snap-start cursor-pointer flex-col items-center gap-1.5"
       aria-pressed={selected}
     >
       <motion.span

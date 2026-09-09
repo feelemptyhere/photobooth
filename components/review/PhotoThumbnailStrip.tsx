@@ -19,7 +19,7 @@ export function PhotoThumbnailStrip({
   onSelect,
 }: PhotoThumbnailStripProps) {
   return (
-    <div className="flex w-full gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="snap-x flex w-full gap-2 overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {photos.map((p, i) => {
         const active = i === activeIndex;
         return (
@@ -29,7 +29,7 @@ export function PhotoThumbnailStrip({
             onClick={() => onSelect(i)}
             aria-pressed={active}
             className={[
-              "relative h-16 w-12 shrink-0 overflow-hidden rounded-md border bg-paper transition-all",
+              "relative h-16 w-12 shrink-0 snap-start overflow-hidden rounded-md border bg-paper transition-all",
               active ? "border-ink scale-105" : "border-ink/15",
             ].join(" ")}
           >

@@ -77,7 +77,7 @@ export function FinalPreview() {
   const filename = `${slug}-${datePart}.png`;
 
   return (
-    <section className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-1 flex-col items-center px-6 py-10">
+    <section className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-1 flex-col items-center px-6 py-8 lg:py-10">
       <p className="editorial-wide mb-3 text-[10px] text-[var(--muted)]">
         step 09 — all done
       </p>

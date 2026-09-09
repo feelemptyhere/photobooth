@@ -24,7 +24,7 @@ export function ScreenFooter({
   return (
     <footer className="mt-auto">
       <div className="h-px w-full bg-[var(--line)]" />
-      <div className="flex items-center justify-between py-5">
+      <div className="flex items-center justify-between pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
         {onBack ? (
           <Button variant="ghost" onClick={onBack}>
             {backLabel}

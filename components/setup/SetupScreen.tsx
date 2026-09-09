@@ -18,20 +18,20 @@ export function SetupScreen() {
   const ready = name.trim().length > 0 && themeColor !== null;
 
   return (
-    <section className="mx-auto flex min-h-[100dvh] w-full max-w-xl flex-1 flex-col justify-center px-6 py-16">
+    <section className="mx-auto flex min-h-[100dvh] w-full max-w-xl flex-1 flex-col justify-center px-6 py-12 lg:py-16">
       <p className="editorial-wide mb-3 text-[10px] text-[var(--muted)]">
         step 01 — setup
       </p>
-      <Heading level={1} className="mb-12">
+      <Heading level={1} className="mb-10 lg:mb-12">
         let&apos;s make a strip
       </Heading>
 
-      <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-10 lg:gap-12">
         <NameInput />
         <ThemePicker />
       </div>
 
-      <div className="mt-14 flex justify-end">
+      <div className="mt-12 flex justify-end lg:mt-14">
         <Button variant="primary" onClick={goToStripSelection} disabled={!ready}>
           ready ▷
         </Button>

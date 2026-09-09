@@ -41,7 +41,7 @@ export function OptionCarousel<T>({
           {sectionLabel}
         </p>
       )}
-      <div className="flex w-full gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="snap-x flex w-full gap-3 overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {options.map((opt, i) => {
           const id = getId ? getId(opt) : String((opt as { id?: unknown }).id ?? i);
           const desc = renderThumb(opt);
