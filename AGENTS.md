@@ -44,9 +44,22 @@ Kalau butuh satu file spec gabungan untuk context window terbatas, gunakan `docs
 10. Jika ada ambiguitas spesifikasi yang tidak terjawab di dokumen manapun, **buat keputusan implementasi sendiri yang masuk akal** dan dokumentasikan singkat di komentar kode. Jangan berhenti untuk bertanya kecuali benar-benar blocking (mis. kredensial, akses eksternal).
 11. **Laporkan status setiap selesai satu fase** dan tunggu konfirmasi sebelum lanjut ke fase berikutnya, kecuali diinstruksikan sebaliknya oleh user.
 
-## Efisiensi Token (WAJIB — hemat token)
+## Efisiensi Token (WAJIB EKSPLISIT — hemat token)
 
-Token adalah resource terbatas. Dua mekanisme wajib dipakai sepanjang sesi untuk memangkas konsumsi token. **Pelanggaran aturan di bawah = pemborosan token yang tidak perlu dan wajib dihindari.**
+Token adalah resource terbatas. **Dua mekanisme WAJIB dipakai eksplisit sepanjang sesi: (1) graphify untuk eksplorasi/pencarian kode, (2) rtk untuk kompresi output shell.** Bukan opsional, bukan "kalau ingat". Pelanggaran = pemborosan token yang wajib dihindari.
+
+### 0. Gate Verifikasi — WAJIB di awal SETIAP sesi (sebelum coding apapun)
+
+Sebelum mulai kerja, jalankan **kedua** perintah ini dan laporkan hasilnya ke user dalam laporan status pertama:
+
+```bash
+rtk gain              # konfirmasi rtk aktif (harus muncul angka "Total commands" / "Input tokens saved")
+graphify query "__session_boot__" 2>&1 | head -3   # atau graphify --version; konfirmasi graph ter-load
+```
+
+- Kalau `rtk gain` **gagal/error atau belum ada hook aktif** → jangan lanjut. Jalankan `rtk init` dulu, pilih agent hook yang sesuai, lalu verifikasi ulang.
+- Kalau `graphify` **tidak ditemukan atau `graph.json` kosong** → jalankan `graphify update .` dulu untuk membangun graph.
+- **Dilarang memulai fase baru sebelum kedua gate di atas sehat.** Ini bukan formalitas — tanpa keduanya, setiap eksplorasi dan setiap output build akan membakar token tanpa kompresi.
 
 ### 1. Graphify — SATU-SATUNYA cara eksplorasi/pencarian kode
 
@@ -55,7 +68,7 @@ Knowledge graph proyek sudah dibangun di `graphify-out/graph.json` (code AST + 1
 **DILARANG KERAS** melakukan pencarian/eksplorasi kode dengan cara lain:
 - ❌ `grep`, `rg`, `find`, `sed` manual di shell untuk mencari simbol/definisi/pemakaian
 - ❌ `read_files` / membuka file mentah sekadar "untuk lihat apa isinya" atau mencari di mana suatu fungsi/komponen didefinisikan
-- ❌ `search_codebase` (regex search) untuk mencari simbol/fungsi/komponen/definisi
+- ❌ `search_codebase` (regex search) untuk mencari simbol/fungsi/komponen/definisi ← **ini yang paling sering dilanggar, JANGAN**
 - ❌ `fetch_web_content` untuk dokumentasi internal yang sudah ada di graph (seluruh `docs/*` sudah ter-indeks)
 
 **WAJIB** lewat graphify untuk SEMUA kebutuhan berikut:
@@ -64,12 +77,14 @@ Knowledge graph proyek sudah dibangun di `graphify-out/graph.json` (code AST + 1
 - Trace hubungan / rantai dependency antar 2 simbol → `graphify path "A" "B"`
 - Setelah fase/commit besar selesai → `graphify update .` (refresh graph, gratis)
 
+> **Self-check wajib sebelum memanggil `search_codebase` atau `read_files` untuk eksplorasi:** tanyakan dulu ke diri sendiri — *"Apakah aku mencari simbol/komponen/definisi?"* Kalau ya → **stop, pakai `graphify query`**. `read_files` hanya untuk file yang path-nya sudah pasti diketahui untuk diedit.
+
 **Pengecualian (boleh `read_files` langsung, bukan search):**
 - Membaca file spesifik yang path-nya **sudah pasti diketahui** untuk diedit (mis. file yang sedang diimplementasi).
 - Membaca `docs/*` saat onboarding awal sesuai urutan di tabel Dokumentasi (itu baca-membaca, bukan pencarian).
 - Membaca `AGENTS.md` itu sendiri.
 
-### 2. rtk — wajib dipakai untuk kompresi output shell
+### 2. rtk — WAJIB dipakai untuk kompresi output shell
 
 [**rtk**](https://github.com/rtk-ai/rtk) adalah CLI proxy (binary Rust tunggal, zero-dependency) yang memfilter & mengompresi output command shell **sebelum** masuk ke context LLM — memangkas konsumsi token **60–90%** pada command umum (`git`, `npm`, `cargo`, `tsc`, build/test output, dll; 100+ filter built-in).
 
@@ -77,6 +92,10 @@ Knowledge graph proyek sudah dibangun di `graphify-out/graph.json` (code AST + 1
 - rtk ter-install di environment kerja. Setup awal: `rtk init` (ikuti prompt, pilih agent hook yang sesuai). Cek status: `rtk status` / `rtk gain`.
 - Semua command shell beroutput panjang (build, test, `git log`, `tsc --noEmit`, `npm run build`, dst.) **wajib** dijalankan dengan outputnya lewat proxy rtk agar ter-kompres sebelum sampai ke context.
 - Pantau hemat token: `rtk gain` (estimasi token & USD tersimpan).
+
+> **Dilarang jalan pintas:** memakai `| tail -N` / `| grep` / `| head` untuk memangkas output **BUKAN pengganti rtk** — itu hanya menyembunyikan baris, bukan mengompresi semantik. rtk hook harus tetap aktif men-proksi command. Manual truncation hanya boleh *setelah* rtk, kalau perlu mempersempit section spesifik (mis. route table build).
+>
+> Catatan: rtk bisa aktif pasif lewat shell/agent hook — command tetap ter-proksi walau tidak eksplisit dipipe. Tapi **agent wajib verifikasi lewat `rtk gain`** bahwa hook benar-benar jalan (lihat Gate Verifikasi §0). Jangan asumsi — cek.
 
 > Kedua aturan saling melengkapi: **graphify untuk eksplorasi/pencarian kode, rtk untuk kompresi output shell.** Tujuan sama: **hemat token, jangan boros.**
 
@@ -114,6 +133,6 @@ MAKE STRIP → STICKERS/DRAW → ALL DONE → SHARE
 
 Gunakan prompt berikut sebagai pesan pertama ke agent:
 
-> "Baca AGENTS.md, lalu baca seluruh dokumen di `/docs/` sesuai urutan yang tercantum. Setelah paham, mulai kerjakan FASE 0 (Project Bootstrap) dari `docs/09-TASK-BREAKDOWN.md`. Setelah FASE 0 selesai dan bisa dijalankan (`npm run dev` tanpa error), laporkan status dan tunggu konfirmasi sebelum lanjut ke FASE 1."
+> "Baca AGENTS.md, lalu jalankan **Gate Verifikasi** (§0 Efisiensi Token): `rtk gain` + `graphify query '__session_boot__'`. Laporkan status kedua tool sebelum lanjut. Lalu baca seluruh dokumen di `/docs/` sesuai urutan yang tercantum. Setelah paham, mulai kerjakan FASE 0 (Project Bootstrap) dari `docs/09-TASK-BREAKDOWN.md`. Setelah FASE 0 selesai dan bisa dijalankan (`npm run dev` tanpa error), laporkan status dan tunggu konfirmasi sebelum lanjut ke FASE 1."
 
-Jika melanjutkan sesi yang sudah berjalan, cukup: **"Lanjutkan dari FASE [n] sesuai `docs/09-TASK-BREAKDOWN.md`."**
+Jika melanjutkan sesi yang sudah berjalan, cukup: **"Lanjutkan dari FASE [n] sesuai `docs/09-TASK-BREAKDOWN.md`."** (Tetap jalankan Gate Verifikasi §0 dulu kalau sesi baru/baru dimulai ulang.)
