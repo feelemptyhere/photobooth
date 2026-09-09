@@ -8,14 +8,15 @@ import { formatDate } from "@/lib/utils/formatDate";
 import { Heading } from "@/components/ui/Heading";
 import { Button } from "@/components/ui/Button";
 import { DownloadButton } from "./DownloadButton";
+import { ShareButton } from "./ShareButton";
 
 /**
  * Screen 08 — FINAL_RESULT (docs/04 Screen 08).
  *
- * Minimal host for Fase 6: shows the high-res exported strip (finalImageDataUrl
- * produced by exportStrip on the previous screen's `done ▷`) with Download +
- * Start New. The gradient `Share to Instagram` button + Web Share logic land in
- * Fase 8; the visual + export pipeline is already wired here.
+ * Lazy high-res export on mount (exportStrip scaleFactor=3 → 900×3600 PNG,
+ * persisted via finalizeStrip), then heading `ALL DONE ♡`, preview, and the
+ * full action stack: ShareButton (gradient, Web Share + honest fallback),
+ * DownloadButton (secondary), Start New (tertiary full reset).
  */
 export function FinalPreview() {
   const dataUrl = usePhotoBoothStore((s) => s.session.finalImageDataUrl);
@@ -91,15 +92,15 @@ export function FinalPreview() {
         className="mb-8 max-h-[64dvh] w-auto rounded-lg shadow-sm"
       />
 
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <DownloadButton imageDataUrl={dataUrl} filename={filename} />
-        <Button variant="primary" onClick={resetSession}>
-          start new
-        </Button>
+      <div className="flex w-full max-w-sm flex-col items-center gap-4">
+        <ShareButton imageDataUrl={dataUrl} filename={filename} />
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <DownloadButton imageDataUrl={dataUrl} filename={filename} />
+          <Button variant="ghost" onClick={resetSession}>
+            start new
+          </Button>
+        </div>
       </div>
-      <p className="editorial-wide mt-6 text-[8px] text-[var(--muted)]">
-        share — coming next
-      </p>
     </section>
   );
 }
