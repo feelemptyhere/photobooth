@@ -9,6 +9,7 @@ import { Heading } from "@/components/ui/Heading";
 import { ScreenFooter } from "@/components/ui/ScreenFooter";
 import { FilterCarousel } from "@/components/effects/FilterCarousel";
 import { BackgroundCarousel } from "@/components/effects/BackgroundCarousel";
+import { EffectCarousel } from "@/components/effects/EffectCarousel";
 import { PhotoThumbnailStrip } from "./PhotoThumbnailStrip";
 import { RetakeButton } from "./RetakeButton";
 
@@ -104,6 +105,15 @@ export function PhotoEditor() {
           options={filters}
           selectedId={photo.filterId}
           onSelect={(id) => updatePhotoEdit(active, { filterId: id })}
+        />
+        <EffectCarousel
+          options={effects}
+          selectedId={photo.effectId}
+          onSelect={(id) =>
+            updatePhotoEdit(active, {
+              effectId: id === photo.effectId ? null : id,
+            })
+          }
         />
       </div>
 
