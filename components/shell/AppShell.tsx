@@ -18,6 +18,7 @@ import { StripLayoutSelector } from "@/components/strip/StripLayoutSelector";
 import { PackSelector } from "@/components/pack/PackSelector";
 import { CameraStage } from "@/components/camera/CameraStage";
 import { PhotoEditor } from "@/components/review/PhotoEditor";
+import { StripCompositionScreen } from "@/components/strip/StripCompositionScreen";
 import { NotImplemented } from "@/components/ui/NotImplemented";
 
 const SCREENS: Partial<Record<SessionStatus, () => React.ReactNode>> = {
@@ -32,6 +33,8 @@ const SCREENS: Partial<Record<SessionStatus, () => React.ReactNode>> = {
   // after the 6th capture, or after a single retake shot).
   photo_review: PhotoEditor,
   editing: PhotoEditor,
+  // Screen 07 — live canvas strip preview (render engine host).
+  strip_composition: StripCompositionScreen,
 };
 
 /**

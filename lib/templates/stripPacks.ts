@@ -108,3 +108,9 @@ export const stripPacks: StripPack[] = [
     footer: { showDate: true, brandText: "yourbrand.com" },
   },
 ];
+
+/** Lookup helper — used by <StripCanvasPreview /> and the export path. */
+export function getPack(id: string): StripPack | undefined {
+  return stripPacks.find((p) => p.id === id);
+}
+
