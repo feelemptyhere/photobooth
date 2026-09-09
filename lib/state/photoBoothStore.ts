@@ -60,6 +60,7 @@ export interface PhotoBoothStore {
   removeSticker: (id: string) => void;
   addDrawingStroke: (stroke: DrawingStroke) => void;
   clearDrawings: () => void;
+  undoDrawing: () => void;
   finalizeStrip: (dataUrl: string) => void;
   resetSession: () => void;
   // Additive convenience for linear back-navigation (setup↔strip↔pack).
@@ -152,6 +153,7 @@ export const usePhotoBoothStore = create<PhotoBoothStore>((set, get) => {
     removeSticker: (id) => set((s) => ({ session: { ...s.session, stickers: s.session.stickers.filter((st) => st.id !== id) } })),
     addDrawingStroke: (stroke) => set((s) => ({ session: { ...s.session, drawings: [...s.session.drawings, stroke] } })),
     clearDrawings: () => set((s) => ({ session: { ...s.session, drawings: [] } })),
+    undoDrawing: () => set((s) => ({ session: { ...s.session, drawings: s.session.drawings.slice(0, -1) } })),
     finalizeStrip: (dataUrl) => transition("final_result", { finalImageDataUrl: dataUrl }),
     resetSession: () => set({ session: createEmptySession(), status: "setup", retakeSlotIndex: null }),
     goBack: (to) => transition(to),

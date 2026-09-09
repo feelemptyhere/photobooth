@@ -19,6 +19,8 @@ import { PackSelector } from "@/components/pack/PackSelector";
 import { CameraStage } from "@/components/camera/CameraStage";
 import { PhotoEditor } from "@/components/review/PhotoEditor";
 import { StripCompositionScreen } from "@/components/strip/StripCompositionScreen";
+import { StickerDrawEditor } from "@/components/stripEditor/StickerDrawEditor";
+import { FinalPreview } from "@/components/final/FinalPreview";
 import { NotImplemented } from "@/components/ui/NotImplemented";
 
 const SCREENS: Partial<Record<SessionStatus, () => React.ReactNode>> = {
@@ -35,6 +37,10 @@ const SCREENS: Partial<Record<SessionStatus, () => React.ReactNode>> = {
   editing: PhotoEditor,
   // Screen 07 — live canvas strip preview (render engine host).
   strip_composition: StripCompositionScreen,
+  // Screen 08 — stickers & freehand draw overlays on the live strip preview.
+  sticker_draw_editor: StickerDrawEditor,
+  // Screen 09 — final exported strip (download + start new; share = Fase 8).
+  final_result: FinalPreview,
 };
 
 /**
