@@ -11,6 +11,7 @@
  * canvas rendering with textures lands in Fase 4.
  */
 import type { StripPack } from "@/types";
+import { withBasePath } from "@/lib/utils/paths";
 
 const BASE_W = 300;
 const BASE_H = 1200;
@@ -34,12 +35,12 @@ export const stripPacks: StripPack[] = [
     width: BASE_W,
     height: BASE_H,
     background: "#F7F1E8",
-    textureUrl: "/assets/textures/bistro-texture.svg",
+    textureUrl: withBasePath("/assets/textures/bistro-texture.svg"),
     photoSlots: verticalSlots(),
     decorativeElements: [
       {
         id: "bistro-corner-tl",
-        imageUrl: "/assets/textures/bistro-corner.svg",
+        imageUrl: withBasePath("/assets/textures/bistro-corner.svg"),
         x: 0,
         y: 0,
         width: 60,
@@ -61,7 +62,7 @@ export const stripPacks: StripPack[] = [
     decorativeElements: [
       {
         id: "sweetheart-heart-1",
-        imageUrl: "/assets/textures/heart-sticker.svg",
+        imageUrl: withBasePath("/assets/textures/heart-sticker.svg"),
         x: 220,
         y: 10,
         width: 40,
